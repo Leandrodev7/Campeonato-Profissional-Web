@@ -1,0 +1,823 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Campeonato Profissional v2.0</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+      }
+      body {
+        background: #111827;
+        color: #fff;
+        padding: 20px;
+      }
+      .container {
+        max-width: 1200px;
+        margin: auto;
+      }
+      h1 {
+        text-align: center;
+        color: #22c55e;
+        margin-bottom: 20px;
+        font-size: 32px;
+      }
+      .tabs {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+      }
+      .tab-btn {
+        padding: 10px 16px;
+        border: none;
+        border-radius: 6px;
+        background: #374151;
+        color: #fff;
+        cursor: pointer;
+      }
+      .tab-btn.active {
+        background: #22c55e;
+        color: #000;
+      }
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+      }
+      .card {
+        background: #1f2937;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+      }
+      input,
+      select,
+      textarea {
+        padding: 10px;
+        width: 100%;
+        max-width: 320px;
+        margin: 6px 0;
+        border: none;
+        border-radius: 6px;
+        background: #374151;
+        color: #fff;
+      }
+      button {
+        padding: 10px 14px;
+        border: none;
+        border-radius: 6px;
+        background: #22c55e;
+        color: #000;
+        font-weight: bold;
+        cursor: pointer;
+        margin: 4px;
+      }
+      button:hover {
+        opacity: 0.9;
+      }
+      button.del {
+        background: #ef4444;
+        color: #fff;
+      }
+      button.alt {
+        background: #f59e0b;
+        color: #000;
+      }
+      button.blue {
+        background: #3b82f6;
+        color: #fff;
+      }
+      button.gold {
+        background: #ca8a04;
+        color: #000;
+      }
+      button.link {
+        background: transparent;
+        color: #22c55e;
+        text-decoration: underline;
+        padding: 0;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+      th,
+      td {
+        padding: 10px;
+        text-align: center;
+        border-bottom: 1px solid #374151;
+      }
+      th {
+        background: #374151;
+      }
+      .rodada {
+        margin: 12px 0;
+        padding: 12px;
+        background: #111827;
+        border-radius: 8px;
+      }
+      .jogo-info {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin: 8px 0;
+      }
+      .placar {
+        font-size: 18px;
+        font-weight: bold;
+        min-width: 80px;
+        text-align: center;
+      }
+      .escudo {
+        width: 28px;
+        height: 28px;
+        object-fit: cover;
+        border-radius: 50%;
+        vertical-align: middle;
+      }
+      .escudo-grande {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 50%;
+        display: block;
+        margin: 0 auto 10px;
+      }
+      .historico-item {
+        border: 1px solid #374151;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 10px 0;
+        background: #111827;
+      }
+      .destaque {
+        color: #22c55e;
+        font-weight: bold;
+      }
+      .dashboard-info,
+      .perfil-info {
+        font-size: 18px;
+        line-height: 1.8;
+      }
+      .forma {
+        display: inline-flex;
+        gap: 4px;
+        margin-left: 8px;
+      }
+      .bol {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: bold;
+        color: #000;
+      }
+      .bol.V {
+        background: #22c55e;
+      }
+      .bol.E {
+        background: #facc15;
+      }
+      .bol.D {
+        background: #ef4444;
+      }
+      @media (max-width: 700px) {
+        body {
+          padding: 10px;
+        }
+        table {
+          font-size: 12px;
+        }
+        .jogo-info {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🏆 Campeonato Profissional v2.0</h1>
+
+      <div class="tabs">
+        <button class="tab-btn active" onclick="mostrarAba(event, 'dashboard')">
+          Dashboard
+        </button>
+        <button class="tab-btn" onclick="mostrarAba(event, 'times')">
+          Times
+        </button>
+        <button class="tab-btn" onclick="mostrarAba(event, 'tabela')">
+          Classificação
+        </button>
+        <button class="tab-btn" onclick="mostrarAba(event, 'rodadas')">
+          Rodadas
+        </button>
+        <button class="tab-btn" onclick="mostrarAba(event, 'artilheiros')">
+          Artilheiros
+        </button>
+        <button class="tab-btn" onclick="mostrarAba(event, 'temporadas')">
+          Temporadas
+        </button>
+        <button class="tab-btn" onclick="mostrarAba(event, 'backup')">
+          Backup
+        </button>
+      </div>
+
+      <!-- DASHBOARD -->
+      <div id="dashboard" class="tab-content active">
+        <div class="card">
+          <h2>📊 Painel do Campeonato</h2>
+          <div class="dashboard-info">
+            <p id="totalTimes"></p>
+            <p id="totalJogos"></p>
+            <p id="jogosRealizados"></p>
+            <p id="totalGols"></p>
+            <p id="liderAtual"></p>
+            <p id="artilheiroAtual"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- TIMES -->
+      <div id="times" class="tab-content">
+        <div class="card">
+          <h2>Cadastrar Time</h2>
+          <input id="teamName" placeholder="Nome do time" />
+          <input id="teamEscudo" placeholder="URL do escudo" />
+          <button onclick="addTeam()">Adicionar Time</button>
+        </div>
+        <div class="card">
+          <h2>Times Cadastrados — clique para ver perfil</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Escudo</th>
+                <th>Nome</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="teamsTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PERFIL DO TIME (NOVO) -->
+      <div id="perfilTime" class="tab-content">
+        <div class="card">
+          <button class="link" onclick="mostrarAba(event, 'times')">
+            ← Voltar aos Times
+          </button>
+          <div id="conteudoPerfil" class="perfil-info"></div>
+        </div>
+      </div>
+
+      <!-- TABELA -->
+      <div id="tabela" class="tab-content">
+        <div class="card">
+          <h2>Classificação</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Time</th>
+                <th>Pts</th>
+                <th>J</th>
+                <th>V</th>
+                <th>E</th>
+                <th>D</th>
+                <th>GP</th>
+                <th>GC</th>
+                <th>SG</th>
+                <th>Forma</th>
+              </tr>
+            </thead>
+            <tbody id="standings"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- RODADAS -->
+      <div id="rodadas" class="tab-content">
+        <div class="card">
+          <h2>
+            Calendário — Temporada: <span id="nomeTemporadaAtual">2026</span>
+          </h2>
+          <button onclick="gerarRodadas()">Gerar Rodadas</button>
+          <button class="gold" onclick="encerrarTemporada()">
+            🏁 Encerrar Temporada
+          </button>
+          <button class="del" onclick="comecarNovo()">Novo Campeonato</button>
+          <div id="listaRodadas"></div>
+        </div>
+      </div>
+
+      <!-- ARTILHEIROS -->
+      <div id="artilheiros" class="tab-content">
+        <div class="card">
+          <h2>Cadastrar Jogador</h2>
+          <input id="jogadorNome" placeholder="Nome do jogador" />
+          <input
+            id="jogadorGols"
+            type="number"
+            min="0"
+            placeholder="Quantidade de gols"
+          />
+          <select id="jogadorTime">
+            <option value="">-- Time --</option>
+          </select>
+          <button onclick="addJogador()">Salvar</button>
+        </div>
+        <div class="card">
+          <h2>Ranking</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Jogador</th>
+                <th>Time</th>
+                <th>Gols</th>
+                <th>Ação</th>
+              </tr>
+            </thead>
+            <tbody id="rankingArtilheiros"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TEMPORADAS -->
+      <div id="temporadas" class="tab-content">
+        <div class="card">
+          <h2>Histórico de Temporadas</h2>
+          <p>Temporada atual: <strong id="atualTemporada">2026</strong></p>
+          <input
+            id="novaTemporadaNome"
+            placeholder="Próxima temporada (ex: 2027)"
+          />
+          <button class="gold" onclick="encerrarTemporada()">
+            🏁 Encerrar e Salvar
+          </button>
+          <div id="listaHistorico"></div>
+        </div>
+      </div>
+
+      <!-- BACKUP -->
+      <div id="backup" class="tab-content">
+        <div class="card">
+          <h2>Backup do Campeonato</h2>
+          <p>Salve seus dados para não perder.</p>
+          <button class="blue" onclick="exportarDados()">
+            💾 Exportar Backup
+          </button>
+          <br /><br />
+          <input type="file" id="arquivoImportar" accept=".json" />
+          <button onclick="importarDados()">📂 Importar Backup</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const STORAGE_KEY = "campeonato_profissional_v20";
+      let data = JSON.parse(
+        localStorage.getItem(STORAGE_KEY) ||
+          `{
+  "temporadaAtual": "2026",
+  "times": [],
+  "rodadas": [],
+  "jogadores": [],
+  "historico": []
+}`,
+      );
+
+      function save() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        render();
+      }
+      function mostrarAba(e, id) {
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((x) => x.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-btn")
+          .forEach((x) => x.classList.remove("active"));
+        document.getElementById(id).classList.add("active");
+        if (e && e.target) e.target.classList.add("active");
+      }
+
+      // TIMES
+      function addTeam() {
+        let nome = document.getElementById("teamName").value.trim();
+        let escudo = document.getElementById("teamEscudo").value.trim();
+        if (!nome) return alert("Digite o nome do time");
+        data.times.push({
+          id: Date.now(),
+          nome,
+          escudo,
+          pts: 0,
+          j: 0,
+          v: 0,
+          e: 0,
+          d: 0,
+          gp: 0,
+          gc: 0,
+          sg: 0,
+        });
+        document.getElementById("teamName").value = "";
+        document.getElementById("teamEscudo").value = "";
+        save();
+      }
+      function removeTeam(id) {
+        let time = data.times.find((t) => t.id === id);
+        if (!confirm(`Remover ${time.nome} e todos os jogos dele?`)) return;
+        data.times = data.times.filter((t) => t.id !== id);
+        data.rodadas.forEach((rd) => {
+          rd.jogos = rd.jogos.filter((j) => j.casa !== id && j.fora !== id);
+        });
+        data.jogadores = data.jogadores.filter((j) => j.timeId !== id);
+        recalcularTodasEstatisticas();
+        save();
+      }
+
+      // FORMA (últimos 5 resultados)
+      function obterForma(timeId) {
+        let res = [];
+        data.rodadas.forEach((rd) => {
+          rd.jogos.forEach((j) => {
+            if (j.golsCasa === null || j.golsFora === null) return;
+            let ehCasa = j.casa === timeId;
+            let ehFora = j.fora === timeId;
+            if (!ehCasa && !ehFora) return;
+            let golsTime = ehCasa ? j.golsCasa : j.golsFora;
+            let golsAdv = ehCasa ? j.golsFora : j.golsCasa;
+            if (golsTime > golsAdv) res.push("V");
+            else if (golsTime < golsAdv) res.push("D");
+            else res.push("E");
+          });
+        });
+        return res.slice(-5);
+      }
+
+      // PERFIL DO TIME (NOVO)
+      function abrirPerfil(timeId) {
+        let t = data.times.find((x) => x.id === timeId);
+        if (!t) return;
+        let forma = obterForma(timeId);
+        let formaHTML =
+          forma.map((r) => `<span class="bol ${r}">${r}</span>`).join("") ||
+          "<span style='color:#999'>sem jogos</span>";
+        let jogadoresTime = data.jogadores.filter((j) => j.timeId === timeId);
+        let jogosTime = [];
+        data.rodadas.forEach((rd) => {
+          rd.jogos.forEach((j) => {
+            if (j.casa === timeId || j.fora === timeId)
+              jogosTime.push({ rd: rd.numero, ...j });
+          });
+        });
+        let jogosHTML = jogosTime.length
+          ? jogosTime
+              .map((j) => {
+                let c = data.times.find((x) => x.id === j.casa);
+                let f = data.times.find((x) => x.id === j.fora);
+                let plc =
+                  j.golsCasa !== null
+                    ? `${j.golsCasa} x ${j.golsFora}`
+                    : "— x —";
+                return `<div class="rodada" style="margin:4px 0;padding:8px">Rod.${j.rd}: ${c.nome} ${plc} ${f.nome}</div>`;
+              })
+              .join("")
+          : "<p>Sem jogos registrados</p>";
+
+        document.getElementById("conteudoPerfil").innerHTML = `
+    ${t.escudo ? `<img class="escudo-grande" src="${t.escudo}">` : ""}
+    <h2 style="text-align:center;color:#22c55e;margin-bottom:15px">${t.nome}</h2>
+    <p class="destaque">📊 Resumo da Temporada</p>
+    <p>Pontos: ${t.pts} | Jogos: ${t.j} | V: ${t.v} | E: ${t.e} | D: ${t.d}</p>
+    <p>GP: ${t.gp} | GC: ${t.gc} | SG: ${t.sg}</p>
+    <p>Forma (últimos 5): <span class="forma">${formaHTML}</span></p>
+    <br>
+    <p class="destaque">👟 Jogadores</p>
+    ${jogadoresTime.length ? jogadoresTime.map((j) => `<p>• ${j.nome} — ${j.gols} gols</p>`).join("") : "<p>Sem jogadores cadastrados</p>"}
+    <br>
+    <p class="destaque">📋 Últimos Jogos</p>
+    ${jogosHTML}
+  `;
+        mostrarAba(
+          { target: document.querySelector('[onclick*="perfilTime"]') },
+          "perfilTime",
+        );
+      }
+
+      // RODADAS
+      function gerarRodadas() {
+        let t = [...data.times];
+        if (t.length < 2) return alert("Cadastre pelo menos 2 times");
+        if (t.length % 2) t.push({ id: null, nome: "Folga" });
+        let rodadas = [];
+        let total = t.length;
+        for (let r = 0; r < total - 1; r++) {
+          let jogos = [];
+          for (let i = 0; i < total / 2; i++) {
+            let casa = t[i],
+              fora = t[total - 1 - i];
+            if (casa.id && fora.id) {
+              jogos.push({
+                id: Date.now() + Math.random(),
+                casa: casa.id,
+                fora: fora.id,
+                golsCasa: null,
+                golsFora: null,
+              });
+            }
+          }
+          rodadas.push({ numero: r + 1, jogos });
+          t.splice(1, 0, t.pop());
+        }
+        let turno1 = [...rodadas];
+        rodadas.push(
+          ...turno1.map((r, i) => ({
+            numero: turno1.length + i + 1,
+            jogos: r.jogos.map((j) => ({
+              id: Date.now() + Math.random(),
+              casa: j.casa,
+              fora: j.fora,
+              golsCasa: null,
+              golsFora: null,
+            })),
+          })),
+        );
+        data.rodadas = rodadas;
+        recalcularTodasEstatisticas();
+        save();
+      }
+
+      // ESTATÍSTICAS
+      function recalcularTodasEstatisticas() {
+        data.times.forEach((t) => {
+          t.pts = t.j = t.v = t.e = t.d = t.gp = t.gc = t.sg = 0;
+        });
+        data.rodadas.forEach((rd) => {
+          rd.jogos.forEach((j) => {
+            if (j.golsCasa === null || j.golsFora === null) return;
+            let casa = data.times.find((t) => t.id === j.casa);
+            let fora = data.times.find((t) => t.id === j.fora);
+            if (!casa || !fora) return;
+            casa.j++;
+            fora.j++;
+            casa.gp += j.golsCasa;
+            casa.gc += j.golsFora;
+            fora.gp += j.golsFora;
+            fora.gc += j.golsCasa;
+            if (j.golsCasa > j.golsFora) {
+              casa.v++;
+              casa.pts += 3;
+              fora.d++;
+            } else if (j.golsCasa < j.golsFora) {
+              fora.v++;
+              fora.pts += 3;
+              casa.d++;
+            } else {
+              casa.e++;
+              fora.e++;
+              casa.pts++;
+              fora.pts++;
+            }
+          });
+        });
+        data.times.forEach((t) => {
+          t.sg = t.gp - t.gc;
+        });
+      }
+
+      // RESULTADOS
+      function definirOuEditarJogo(r, j) {
+        let jogo = data.rodadas[r].jogos[j];
+        let gc = prompt("Gols do mandante:", jogo.golsCasa ?? "");
+        let gf = prompt("Gols do visitante:", jogo.golsFora ?? "");
+        gc = Number(gc);
+        gf = Number(gf);
+        if (isNaN(gc) || isNaN(gf) || gc < 0 || gf < 0)
+          return alert("Resultado inválido");
+        jogo.golsCasa = gc;
+        jogo.golsFora = gf;
+        recalcularTodasEstatisticas();
+        save();
+      }
+      function limparResultado(r, j) {
+        if (!confirm("Limpar?")) return;
+        let jogo = data.rodadas[r].jogos[j];
+        jogo.golsCasa = jogo.golsFora = null;
+        recalcularTodasEstatisticas();
+        save();
+      }
+      function excluirPartida(r, j) {
+        if (!confirm("Excluir?")) return;
+        data.rodadas[r].jogos.splice(j, 1);
+        recalcularTodasEstatisticas();
+        save();
+      }
+
+      // ARTILHEIROS
+      function addJogador() {
+        let nome = document.getElementById("jogadorNome").value.trim();
+        let gols = +document.getElementById("jogadorGols").value;
+        let timeId = +document.getElementById("jogadorTime").value;
+        if (!nome || !timeId) return alert("Preencha tudo");
+        data.jogadores.push({ id: Date.now(), nome, gols, timeId });
+        document.getElementById("jogadorNome").value = document.getElementById(
+          "jogadorGols",
+        ).value = "";
+        save();
+      }
+      function delJogador(id) {
+        data.jogadores = data.jogadores.filter((j) => j.id !== id);
+        save();
+      }
+
+      // TEMPORADAS
+      function encerrarTemporada() {
+        if (!data.rodadas.length) return alert("Nada para encerrar");
+        let tabela = [...data.times].sort(
+          (a, b) => b.pts - a.pts || b.sg - a.sg || b.gp - a.gp,
+        );
+        if (!tabela.length) return alert("Sem times");
+        let artilheiro = [...data.jogadores].sort((a, b) => b.gols - a.gols)[0];
+        let campeao = tabela[0],
+          ma = [...data.times].sort((a, b) => b.gp - a.gp)[0],
+          md = [...data.times].sort((a, b) => a.gc - b.gc)[0];
+        data.historico.unshift({
+          temporada: data.temporadaAtual,
+          dataFim: new Date().toLocaleString(),
+          campeao: { id: campeao.id, nome: campeao.nome },
+          vice: tabela[1] ? { id: tabela[1].id, nome: tabela[1].nome } : null,
+          artilheiro: artilheiro
+            ? { nome: artilheiro.nome, gols: artilheiro.gols }
+            : null,
+          melhorAtaque: { nome: ma.nome, gols: ma.gp },
+          melhorDefesa: { nome: md.nome, gols: md.gc },
+        });
+        data.temporadaAtual =
+          document.getElementById("novaTemporadaNome").value.trim() ||
+          (+data.temporadaAtual + 1).toString();
+        data.times.forEach((t) => {
+          t.pts = t.j = t.v = t.e = t.d = t.gp = t.gc = t.sg = 0;
+        });
+        data.rodadas = [];
+        data.jogadores = [];
+        save();
+        alert("Temporada encerrada!");
+      }
+
+      // BACKUP
+      function exportarDados() {
+        let a = document.createElement("a");
+        a.href = URL.createObjectURL(
+          new Blob([JSON.stringify(data, null, 2)], {
+            type: "application/json",
+          }),
+        );
+        a.download = "campeonato_backup_v20.json";
+        a.click();
+      }
+      function importarDados() {
+        let arq = document.getElementById("arquivoImportar").files[0];
+        if (!arq) return alert("Escolha");
+        let r = new FileReader();
+        r.onload = (e) => {
+          try {
+            let d = JSON.parse(e.target.result);
+            if (confirm("Substituir tudo?")) {
+              data = d;
+              save();
+              alert("OK");
+            }
+          } catch {
+            alert("Inválido");
+          }
+        };
+        r.readAsText(arq);
+      }
+      function comecarNovo() {
+        if (confirm("Apagar tudo?")) {
+          data = {
+            temporadaAtual: "2026",
+            times: [],
+            rodadas: [],
+            jogadores: [],
+            historico: [],
+          };
+          save();
+        }
+      }
+
+      // RENDER
+      function render() {
+        document.getElementById("nomeTemporadaAtual").textContent =
+          document.getElementById("atualTemporada").textContent =
+            data.temporadaAtual;
+
+        // DASHBOARD
+        let jr = 0,
+          gt = 0;
+        data.rodadas.forEach((r) =>
+          r.jogos.forEach((j) => {
+            if (j.golsCasa !== null) {
+              jr++;
+              gt += j.golsCasa + j.golsFora;
+            }
+          }),
+        );
+        let tabela = [...data.times].sort(
+          (a, b) => b.pts - a.pts || b.sg - a.sg || b.gp - a.gp,
+        );
+        let artilheiros = [...data.jogadores].sort((a, b) => b.gols - a.gols);
+        document.getElementById("totalTimes").textContent =
+          "👥 Times: " + data.times.length;
+        document.getElementById("totalJogos").textContent =
+          "⚽ Jogos: " + data.rodadas.reduce((s, r) => s + r.jogos.length, 0);
+        document.getElementById("jogosRealizados").textContent =
+          "✅ Realizados: " + jr;
+        document.getElementById("totalGols").textContent = "🥅 Gols: " + gt;
+        document.getElementById("liderAtual").innerHTML = tabela[0]
+          ? "🏆 Líder: " + tabela[0].nome + " (" + tabela[0].pts + " pts)"
+          : "🏆 Líder: -";
+        document.getElementById("artilheiroAtual").innerHTML = artilheiros[0]
+          ? "👟 Artilheiro: " +
+            artilheiros[0].nome +
+            " (" +
+            artilheiros[0].gols +
+            " gols)"
+          : "👟 Artilheiro: -";
+
+        // TIMES — nome clicável
+        document.getElementById("teamsTable").innerHTML = data.times
+          .map(
+            (t) =>
+              `<tr><td>${t.escudo ? `<img class="escudo" src="${t.escudo}">` : "—"}</td><td><button class="link" onclick="abrirPerfil(${t.id})">${t.nome}</button></td><td><button class="del" onclick="removeTeam(${t.id})">Excluir</button></td></tr>`,
+          )
+          .join("");
+
+        // CLASSIFICAÇÃO COM FORMA
+        document.getElementById("standings").innerHTML = tabela
+          .map((t, i) => {
+            let forma = obterForma(t.id)
+              .map((r) => `<span class="bol ${r}">${r}</span>`)
+              .join("");
+            return `<tr><td>${i + 1}</td><td>${t.escudo ? `<img class="escudo" src="${t.escudo}">` : ""} ${t.nome}</td><td>${t.pts}</td><td>${t.j}</td><td>${t.v}</td><td>${t.e}</td><td>${t.d}</td><td>${t.gp}</td><td>${t.gc}</td><td>${t.sg}</td><td><div class="forma">${forma}</div></td></tr>`;
+          })
+          .join("");
+
+        // RODADAS
+        document.getElementById("listaRodadas").innerHTML = data.rodadas
+          .map(
+            (rd, r) =>
+              `<div class="rodada"><h3>Rodada ${rd.numero}</h3>${rd.jogos
+                .map((j, i) => {
+                  let c = data.times.find((x) => x.id === j.casa),
+                    f = data.times.find((x) => x.id === j.fora);
+                  if (!c || !f) return "";
+                  return `<div class="jogo-info"><span>${c.nome}</span><span class="placar">${j.golsCasa === null ? "— x —" : j.golsCasa + " x " + j.golsFora}</span><span>${f.nome}</span><button onclick="definirOuEditarJogo(${r},${i})">${j.golsCasa === null ? "Definir" : "Editar"}</button><button class="alt" onclick="limparResultado(${r},${i})">Limpar</button><button class="del" onclick="excluirPartida(${r},${i})">Excluir</button></div>`;
+                })
+                .join("")}</div>`,
+          )
+          .join("");
+
+        // JOGADORES
+        document.getElementById("jogadorTime").innerHTML =
+          `<option value="">-- Time --</option>` +
+          data.times
+            .map((t) => `<option value="${t.id}">${t.nome}</option>`)
+            .join("");
+        document.getElementById("rankingArtilheiros").innerHTML = artilheiros
+          .map((j, i) => {
+            let t = data.times.find((x) => x.id === j.timeId);
+            return `<tr><td>${i + 1}</td><td>${j.nome}</td><td>${t ? t.nome : "-"}</td><td>${j.gols}</td><td><button class="del" onclick="delJogador(${j.id})">Excluir</button></td></tr>`;
+          })
+          .join("");
+
+        // HISTÓRICO
+        document.getElementById("listaHistorico").innerHTML = data.historico
+          .length
+          ? data.historico
+              .map(
+                (h) =>
+                  `<div class="historico-item"><h4 class="destaque">🏆 Temporada ${h.temporada}</h4><p>Campeão: ${h.campeao.nome}</p><p>Vice: ${h.vice?.nome || "-"}</p><p>Artilheiro: ${h.artilheiro ? h.artilheiro.nome + " (" + h.artilheiro.gols + ")" : "-"}</p><p>Ataque: ${h.melhorAtaque.nome} | Defesa: ${h.melhorDefesa.nome}</p><small>${h.dataFim}</small></div>`,
+              )
+              .join("")
+          : "<p>Nenhuma temporada encerrada</p>";
+      }
+
+      render();
+    </script>
+  </body>
+</html>
