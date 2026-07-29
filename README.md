@@ -1,30 +1,21 @@
-# ⚽ Campeonato Profissional
+# ⚽ Campeonato Profissional 2.0
 
-Sistema web para gerenciamento de campeonatos de futebol.
+Sistema de gerenciamento de campeonatos de futebol desenvolvido para estudo e evolução em programação.
 
-## 🚀 Sobre o projeto
+## Evolução do projeto
 
-Projeto desenvolvido para praticar programação e criar uma aplicação completa de gerenciamento esportivo.
+O projeto passou por várias etapas:
 
-## 💻 Tecnologias utilizadas
+- Campeonato em Python: primeira versão da lógica de campeonatos.
+- Campeonato 2.0 HTML: evolução para aplicação web.
+- Campeonato Profissional 2.0: versão atual com melhorias de interface e funcionalidades.
+
+## Tecnologias
 
 - HTML
 - CSS
 - JavaScript
 
-## 📋 Funcionalidades
+## Objetivo
 
-- Cadastro de times
-- Tabela de classificação
-- Calendário de jogos
-- Artilharia
-- Simulação de partidas
-- Estatísticas do campeonato
-
-## 🎯 Objetivo
-
-Evoluir o projeto aplicando novos conhecimentos de programação, organização de código e desenvolvimento web.
-
----
-
-Desenvolvido por **Leandro Massuquetto**
+Criar um sistema completo de gerenciamento esportivo aplicando boas práticas de desenvolvimento.
