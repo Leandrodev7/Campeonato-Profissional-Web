@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Campeonato Profissional V2.2</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>🏆 Campeonato Profissional V2.2</h1>
+
+      <div class="tabs">
+        <button class="tab-btn active" onclick="mostrarAba(event, 'dashboard')">
+          Dashboard
+        </button>
+        <button class="tab-btn" onclick="mostrarAba(event, 'times')">
+          Times
+        </button>
+        <button class="tab-btn" onclick="mostrarAba(event, 'tabela')">
+          Classificação
+        </button>
+        <button class="tab-btn" onclick="mostrarAba(event, 'rodadas')">
+          Rodadas & Chaves
+        </button>
+        <button class="tab-btn" onclick="mostrarAba(event, 'artilheiros')">
+          Artilheiros
+        </button>
+        <button class="tab-btn" onclick="mostrarAba(event, 'temporadas')">
+          Temporadas
+        </button>
+        <button class="tab-btn" onclick="mostrarAba(event, 'backup')">
+          Backup
+        </button>
+      </div>
+
+      <div id="dashboard" class="tab-content active">
+        <div class="card">
+          <h2>📊 Painel do Campeonato</h2>
+          <div class="dashboard-grid">
+            <div class="stat-card">
+              <div class="stat-lab">👥 Times</div>
+              <div class="stat-val" id="s-times">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-lab">📅 Jogos</div>
+              <div class="stat-val" id="s-jogos">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-lab">✅ Realizados</div>
+              <div class="stat-val" id="s-real">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-lab">🥅 Gols</div>
+              <div class="stat-val" id="s-gols">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-lab">🏆 Líder / Atual</div>
+              <div class="stat-val" id="s-lider">—</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-lab">👟 Artilheiro</div>
+              <div class="stat-val" id="s-artilheiro">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="times" class="tab-content">
+        <div class="card">
+          <h2>Cadastrar Time</h2>
+          <input id="teamName" placeholder="Nome do time" />
+          <input id="teamCidade" placeholder="Cidade (opcional)" />
+          <button onclick="addTeam()">Adicionar Time</button>
+        </div>
+        <div class="card">
+          <h2>Times — clique para ver perfil</h2>
+          <div class="times-grid" id="timesGrid"></div>
+        </div>
+      </div>
+
+      <div id="perfilTime" class="tab-content">
+        <div class="card">
+          <button class="link" onclick="mostrarAba(event, 'times')">
+            ← Voltar aos Times
+          </button>
+          <div id="conteudoPerfil"></div>
+        </div>
+      </div>
+
+      <div id="tabela" class="tab-content">
+        <div id="conteudoTabelas"></div>
+      </div>
+
+      <div id="rodadas" class="tab-content">
+        <div class="card">
+          <h2>
+            Calendário — Temporada: <span id="nomeTemporadaAtual">2026</span>
+          </h2>
+
+          <div class="config-box">
+            <div>
+              <label
+                style="
+                  display: block;
+                  font-size: 14px;
+                  color: var(--muted);
+                  margin-bottom: 4px;
+                "
+                >Formato do Campeonato:</label
+              >
+              <select
+                id="formatoCampeonato"
+                onchange="alternarVisibilidadeFormatos()"
+                style="margin: 0"
+              >
+                <option value="PONTOS_CORRIDOS">
+                  Pontos Corridos (ex: Brasileirão)
+                </option>
+                <option value="MATA_MATA">
+                  Mata-Mata (ex: Copa do Brasil)
+                </option>
+                <option value="MISTO">
+                  Misto - Grupos + Mata-Mata (ex: Libertadores)
+                </option>
+              </select>
+            </div>
+
+            <div id="boxTurnos">
+              <label
+                style="
+                  display: block;
+                  font-size: 14px;
+                  color: var(--muted);
+                  margin-bottom: 4px;
+                "
+                >Turnos (Pontos Corridos):</label
+              >
+              <select id="opcaoTurnos" style="margin: 0">
+                <option value="2">Ida e Volta</option>
+                <option value="1">Turno Único</option>
+              </select>
+            </div>
+          </div>
+
+          <button onclick="gerarCampeonatoCompleto()">
+            🚀 Iniciar Torneio
+          </button>
+          <button class="gold" onclick="encerrarTemporada()">
+            🏁 Encerrar Temporada
+          </button>
+          <button class="del" onclick="comecarNovo()">Novo Campeonato</button>
+
+          <div id="listaRodadas" style="margin-top: 20px"></div>
+        </div>
+      </div>
+
+      <div id="artilheiros" class="tab-content">
+        <div class="card">
+          <h2>Cadastrar Jogador</h2>
+          <input id="jogadorNome" placeholder="Nome do jogador" />
+          <input id="jogadorGols" type="number" min="0" placeholder="Gols" />
+          <select id="jogadorTime">
+            <option value="">-- Time --</option>
+          </select>
+          <button onclick="addJogador()">Salvar</button>
+        </div>
+        <div class="card">
+          <h2>Ranking de Artilharia</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Jogador</th>
+                <th>Time</th>
+                <th>Gols</th>
+                <th>Ação</th>
+              </tr>
+            </thead>
+            <tbody id="rankingArtilheiros"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="temporadas" class="tab-content">
+        <div class="card">
+          <h2>Histórico de Temporadas</h2>
+          <p>Temporada atual: <strong id="atualTemporada">2026</strong></p>
+          <input id="novaTemporadaNome" placeholder="Próxima (ex: 2027)" />
+          <button class="gold" onclick="encerrarTemporada()">
+            🏁 Encerrar e Salvar
+          </button>
+          <div id="listaHistorico"></div>
+        </div>
+      </div>
+
+      <div id="backup" class="tab-content">
+        <div class="card">
+          <h2>Backup V2.2</h2>
+          <p>Exporta e importa a estrutura completa de fases do campeonato.</p>
+          <button class="blue" onclick="exportarDados()">
+            💾 Exportar Backup
+          </button>
+          <br /><br />
+          <input type="file" id="arquivoImportar" accept=".json" />
+          <button onclick="importarDados()">📂 Importar Backup</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
