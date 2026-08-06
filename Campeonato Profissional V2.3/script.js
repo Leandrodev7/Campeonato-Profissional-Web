@@ -1,4 +1,4 @@
-const STORAGE_KEY = "campeonato_profissional_v22";
+const STORAGE_KEY = "campeonato_profissional_v23";
 
 let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
 
