@@ -2,7 +2,7 @@ const STORAGE_KEY = "campeonato_profissional_v23";
 
 let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
 
-function validarEtsrutura() {
+function validarEstrutura() {
   if (!data || typeof data !== "object") data = {};
   if (!data.temporadaAtual) data.temporadaAtual = "2026";
   if (!Array.isArray(data.times)) data.times = [];
@@ -28,10 +28,10 @@ function validarEtsrutura() {
   });
 }
 
-validarEtsrutura();
+validarEstrutura();
 
 function save() {
-  validarEtsrutura();
+  validarEstrutura();
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   render();
 }
@@ -64,10 +64,7 @@ function addTeam() {
   let jaExiste = data.times.some(
     (t) => t.nome.toLowerCase() === nome.toLowerCase(),
   );
-  if (jaExiste) {
-    alert("Esse time já está cadastrado!");
-    return;
-  }
+  if (jaExiste) return alert("Esse time já está cadastrado!");
 
   const idUnica = "t_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
 
@@ -93,20 +90,13 @@ function addTeam() {
 function removeTeam(id) {
   let idProcurado = String(id);
   let index = data.times.findIndex((x) => String(x.id) === idProcurado);
-
-  if (index === -1) {
-    alert("Erro: Time não encontrado na lista.");
-    return;
-  }
+  if (index === -1) return alert("Erro: Time não encontrado.");
 
   let t = data.times[index];
-  let nomeTime = t.nome || "este time";
-
-  if (!confirm(`Remover ${nomeTime}? Isso vai reiniciar o campeonato atual.`))
+  if (!confirm(`Remover ${t.nome}? Isso vai reiniciar o campeonato atual.`))
     return;
 
   data.times.splice(index, 1);
-
   data.jogadores = data.jogadores.filter(
     (j) => String(j.timeId) !== idProcurado,
   );
@@ -205,8 +195,7 @@ function abrirPerfil(timeId) {
 }
 
 function gerarCampeonatoCompleto() {
-  validarEtsrutura();
-
+  validarEstrutura();
   if (data.times.length < 2)
     return alert("Cadastre pelo menos 2 times diferentes!");
 
@@ -241,10 +230,7 @@ function criarFasePontosCorridos(
   grupoNome = null,
 ) {
   let t = [...listaTimes];
-
-  if (t.length % 2 !== 0) {
-    t.push({ id: "FOLGA", nome: "Folga" });
-  }
+  if (t.length % 2 !== 0) t.push({ id: "FOLGA", nome: "Folga" });
 
   let totalTimes = t.length;
   let totalRodadas = totalTimes - 1;
@@ -253,27 +239,21 @@ function criarFasePontosCorridos(
 
   for (let r = 0; r < totalRodadas; r++) {
     let jogos = [];
-
     for (let i = 0; i < metade; i++) {
       let casa = t[i];
       let fora = t[totalTimes - 1 - i];
-
       if (casa.id !== "FOLGA" && fora.id !== "FOLGA" && casa.id !== fora.id) {
         jogos.push({
           id: "j_" + Date.now() + "_" + Math.floor(Math.random() * 10000),
-          casa: casa.id,
-          fora: fora.id,
+          casa: String(casa.id),
+          fora: String(fora.id),
           golsCasa: null,
           golsFora: null,
           grupo: grupoNome,
         });
       }
     }
-
-    if (jogos.length > 0) {
-      rodadas.push({ numero: r + 1, jogos });
-    }
-
+    if (jogos.length > 0) rodadas.push({ numero: r + 1, jogos });
     t = [t[0], t[totalTimes - 1], ...t.slice(1, totalTimes - 1)];
   }
 
@@ -284,8 +264,8 @@ function criarFasePontosCorridos(
         numero: t1.length + i + 1,
         jogos: r.jogos.map((j) => ({
           id: "j_" + Date.now() + "_" + Math.floor(Math.random() * 10000),
-          casa: j.fora,
-          fora: j.casa,
+          casa: String(j.fora),
+          fora: String(j.casa),
           golsCasa: null,
           golsFora: null,
           grupo: grupoNome,
@@ -299,7 +279,7 @@ function criarFasePontosCorridos(
     nome: nomeFase,
     tipo: "PONTOS_CORRIDOS",
     concluida: false,
-    rodadas: rodadas,
+    rodadas,
   };
 }
 
@@ -332,67 +312,195 @@ function criarFaseGruposMisto(nomeFase, listaTimes) {
     nome: nomeFase,
     tipo: "PONTOS_CORRIDOS",
     concluida: false,
-    grupos: grupos,
+    grupos,
     rodadas: todasRodadas,
   };
 }
 
+/* ==========================================================================
+   ENGINE MATA-MATA CORRIGIDA E ESTÁVEL
+   ========================================================================== */
+
 function criarFaseMataMata(nomeFase, listaTimes) {
   let n = listaTimes.length;
-  let etapasNomes = [];
-
-  if (n > 8) etapasNomes.push("Oitavas de Final");
-  if (n > 4) etapasNomes.push("Quartas de Final");
-  if (n > 2) etapasNomes.push("Semifinal");
-  etapasNomes.push("Grande Final");
+  if (n < 2) return null;
 
   let sorteados = [...listaTimes].sort(() => Math.random() - 0.5);
+
+  let P = 2;
+  while (P < n) P *= 2;
+
+  let tempP = P / 2;
+  let nomesEtapas = [];
+  while (tempP >= 1) {
+    if (tempP === 16) nomesEtapas.push("16 avos de Final");
+    else if (tempP === 8) nomesEtapas.push("Oitavas de Final");
+    else if (tempP === 4) nomesEtapas.push("Quartas de Final");
+    else if (tempP === 2) nomesEtapas.push("Semifinal");
+    else if (tempP === 1) nomesEtapas.push("Grande Final");
+    tempP /= 2;
+  }
+
   let etapas = [];
+  let totalJogosR1 = P / 2;
+  let numByes = P - n; // times que recebem passagem direta (sempre < totalJogosR1)
 
-  let jogosPrimeira = [];
-  let numJogosPrimeira = Math.pow(2, etapasNomes.length - 1);
+  // Sorteia quais confrontos vão ter bye, garantindo 1 bye por confronto (nunca 2 no mesmo jogo)
+  let indicesComBye = [];
+  while (indicesComBye.length < numByes) {
+    let idx = Math.floor(Math.random() * totalJogosR1);
+    if (!indicesComBye.includes(idx)) indicesComBye.push(idx);
+  }
 
-  for (let i = 0; i < numJogosPrimeira; i++) {
-    let c = sorteados[i * 2];
-    let f = sorteados[i * 2 + 1];
-    jogosPrimeira.push({
-      id: `m_${0}_${i}`,
-      casa: c ? c.id : null,
-      fora: f ? f.id : null,
-      casaPlaceholder: c ? null : "A definir",
-      foraPlaceholder: f ? null : "A definir",
-      golsCasa: null,
-      golsFora: null,
-      vencedor: null,
+  let jogosR1 = [];
+  let ponteiro = 0;
+
+  for (let i = 0; i < totalJogosR1; i++) {
+    let t1, t2;
+
+    if (indicesComBye.includes(i)) {
+      t1 = sorteados[ponteiro++] || null;
+      t2 = null;
+    } else {
+      t1 = sorteados[ponteiro++] || null;
+      t2 = sorteados[ponteiro++] || null;
+    }
+
+    let casaId = t1 ? String(t1.id) : null;
+    let foraId = t2 ? String(t2.id) : null;
+    let vencedor = null;
+    let isBye = false;
+
+    if (t1 && !t2) {
+      vencedor = casaId;
+      isBye = true;
+    } else if (!t1 && t2) {
+      vencedor = foraId;
+      isBye = true;
+    }
+
+    jogosR1.push({
+      id: `m_${totalJogosR1}_${i}`,
+      casa: casaId,
+      fora: foraId,
+      casaPlaceholder: t1 ? t1.nome : "BYE",
+      foraPlaceholder: t2 ? t2.nome : "BYE",
+      golsCasa: isBye ? 0 : null,
+      golsFora: isBye ? 0 : null,
+      vencedor: vencedor,
+      isBye: isBye,
     });
   }
-  etapas.push({ nome: etapasNomes[0], jogos: jogosPrimeira });
 
-  for (let e = 1; e < etapasNomes.length; e++) {
-    let numJogos = Math.pow(2, etapasNomes.length - 1 - e);
-    let jogos = [];
-    for (let i = 0; i < numJogos; i++) {
-      jogos.push({
-        id: `m_${e}_${i}`,
+  etapas.push({ nome: nomesEtapas[0], jogos: jogosR1 });
+
+  let pAtual = totalJogosR1 / 2;
+  let eIdx = 1;
+
+  while (pAtual >= 1) {
+    let jogosEtapa = [];
+    for (let i = 0; i < pAtual; i++) {
+      jogosEtapa.push({
+        id: `m_${pAtual}_${i}`,
         casa: null,
         fora: null,
-        casaPlaceholder: `Vencedor Jogo ${i * 2 + 1} (${etapasNomes[e - 1]})`,
-        foraPlaceholder: `Vencedor Jogo ${i * 2 + 2} (${etapasNomes[e - 1]})`,
+        casaPlaceholder: "A definir",
+        foraPlaceholder: "A definir",
         golsCasa: null,
         golsFora: null,
         vencedor: null,
+        isBye: false,
       });
     }
-    etapas.push({ nome: etapasNomes[e], jogos: jogos });
+    etapas.push({ nome: nomesEtapas[eIdx], jogos: jogosEtapa });
+    pAtual /= 2;
+    eIdx++;
   }
 
-  return {
+  let faseObj = {
     id: "fase_mm_" + Date.now(),
     nome: nomeFase,
     tipo: "MATA_MATA",
     concluida: false,
-    etapas: etapas,
+    etapas,
   };
+
+  recalcularMataMata(faseObj);
+  return faseObj;
+}
+
+function recalcularMataMata(fase) {
+  if (!fase || fase.tipo !== "MATA_MATA") return;
+
+  for (let e = 0; e < fase.etapas.length - 1; e++) {
+    let etapaAtual = fase.etapas[e];
+    let proximaEtapa = fase.etapas[e + 1];
+
+    etapaAtual.jogos.forEach((j, jIdx) => {
+      if (j.vencedor && j.vencedor !== "BYE") {
+        let timeObj = data.times.find(
+          (x) => String(x.id) === String(j.vencedor),
+        );
+        let nomeTime = timeObj ? timeObj.nome : "A definir";
+
+        let proximoJogoIdx = Math.floor(jIdx / 2);
+        let proximoJogo = proximaEtapa.jogos[proximoJogoIdx];
+        let eLadoCasa = jIdx % 2 === 0;
+
+        if (proximoJogo) {
+          if (eLadoCasa) {
+            proximoJogo.casa = String(j.vencedor);
+            proximoJogo.casaPlaceholder = nomeTime;
+          } else {
+            proximoJogo.fora = String(j.vencedor);
+            proximoJogo.foraPlaceholder = nomeTime;
+          }
+        }
+      }
+    });
+  }
+}
+
+function definirJogoMataMata(faseIdx, etapaIdx, jogoIdx) {
+  let fase = data.campeonato.fases[faseIdx];
+  let etapa = fase.etapas[etapaIdx];
+  let jogo = etapa.jogos[jogoIdx];
+
+  if (!jogo.casa || !jogo.fora) {
+    return alert("Aguardando a definição dos dois times.");
+  }
+
+  let gc = prompt("Gols do time da casa:", jogo.golsCasa ?? "");
+  if (gc === null) return;
+  let gf = prompt("Gols do visitante:", jogo.golsFora ?? "");
+  if (gf === null) return;
+
+  gc = parseInt(gc, 10);
+  gf = parseInt(gf, 10);
+
+  if (isNaN(gc) || isNaN(gf) || gc < 0 || gf < 0) {
+    return alert("Digite placares válidos.");
+  }
+
+  let vencedorId = null;
+  if (gc === gf) {
+    let pen = prompt(
+      "Empate! Quem venceu nos pênaltis? Digite C para Casa ou F para Fora:",
+    ).toUpperCase();
+    if (pen === "C") vencedorId = jogo.casa;
+    else if (pen === "F") vencedorId = jogo.fora;
+    else return alert("Opção de pênaltis inválida.");
+  } else {
+    vencedorId = gc > gf ? jogo.casa : jogo.fora;
+  }
+
+  jogo.golsCasa = gc;
+  jogo.golsFora = gf;
+  jogo.vencedor = String(vencedorId);
+
+  recalcularMataMata(fase);
+  recalcularTodasEstatisticas();
+  save();
 }
 
 function promoverGruposParaMataMata() {
@@ -414,7 +522,7 @@ function promoverGruposParaMataMata() {
   faseGrupos.concluida = true;
 
   save();
-  alert("🎉 Classificados promovidos com sucesso para a Fase Final!");
+  alert("🎉 Classificados promovidos para a Fase Final!");
 }
 
 function calcularTabelaClassificacao(listaTimes, rodadas) {
@@ -466,7 +574,7 @@ function calcularTabelaClassificacao(listaTimes, rodadas) {
 }
 
 function recalcularTodasEstatisticas() {
-  validarEtsrutura();
+  validarEstrutura();
   data.times.forEach((t) => {
     t.pts = t.j = t.v = t.e = t.d = t.gp = t.gc = t.sg = 0;
   });
@@ -503,6 +611,7 @@ function recalcularTodasEstatisticas() {
         }),
       );
     } else if (fase.tipo === "MATA_MATA") {
+      recalcularMataMata(fase);
       fase.etapas.forEach((etapa) => {
         etapa.jogos.forEach((j) => {
           if (j.golsCasa === null || j.golsFora === null) return;
@@ -550,47 +659,6 @@ function definirJogoPontosCorridos(faseIdx, rodadaIdx, jogoIdx) {
     return alert("Resultado inválido");
   jogo.golsCasa = gc;
   jogo.golsFora = gf;
-  recalcularTodasEstatisticas();
-  save();
-}
-
-function definirJogoMataMata(faseIdx, etapaIdx, jogoIdx) {
-  let etapa = data.campeonato.fases[faseIdx].etapas[etapaIdx];
-  let jogo = etapa.jogos[jogoIdx];
-
-  if (!jogo.casa || !jogo.fora)
-    return alert("Aguardando definição dos times nesta chave.");
-
-  let gc = +prompt("Gols do time da casa:", jogo.golsCasa ?? "");
-  let gf = +prompt("Gols do visitante:", jogo.golsFora ?? "");
-  if (isNaN(gc) || isNaN(gf) || gc < 0 || gf < 0)
-    return alert("Resultado inválido");
-
-  if (gc === gf) {
-    let pen = prompt(
-      "Empate! Quem venceu nos pênaltis? Digite C para Casa ou F para Fora:",
-    ).toUpperCase();
-    if (pen === "C") gc += 0.1;
-    else if (pen === "F") gf += 0.1;
-    else return alert("Definição de pênaltis cancelada.");
-  }
-
-  jogo.golsCasa = Math.floor(gc);
-  jogo.golsFora = Math.floor(gf);
-  let vencedorId = gc > gf ? jogo.casa : jogo.fora;
-  jogo.vencedor = vencedorId;
-
-  let proximaEtapa = data.campeonato.fases[faseIdx].etapas[etapaIdx + 1];
-  if (proximaEtapa) {
-    let proximoJogoIdx = Math.floor(jogoIdx / 2);
-    let eLadoCasa = jogoIdx % 2 === 0;
-    if (eLadoCasa) {
-      proximaEtapa.jogos[proximoJogoIdx].casa = vencedorId;
-    } else {
-      proximaEtapa.jogos[proximoJogoIdx].fora = vencedorId;
-    }
-  }
-
   recalcularTodasEstatisticas();
   save();
 }
@@ -651,7 +719,7 @@ function exportarDados() {
   a.href = URL.createObjectURL(
     new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }),
   );
-  a.download = `campeonato_v22_${data.temporadaAtual}.json`;
+  a.download = `campeonato_v23_${data.temporadaAtual}.json`;
   a.click();
 }
 
@@ -689,7 +757,7 @@ function comecarNovo() {
 }
 
 function render() {
-  validarEtsrutura();
+  validarEstrutura();
 
   let fmtSelect = document.getElementById("formatoCampeonato");
   if (fmtSelect) fmtSelect.value = data.campeonato.formato || "PONTOS_CORRIDOS";
@@ -718,10 +786,12 @@ function render() {
     } else if (fase.tipo === "MATA_MATA") {
       fase.etapas.forEach((e) =>
         e.jogos.forEach((j) => {
-          totalJogos++;
-          if (j.golsCasa !== null) {
-            jogosRealizados++;
-            golsTotais += j.golsCasa + j.golsFora;
+          if (!j.isBye && j.casa && j.fora) {
+            totalJogos++;
+            if (j.golsCasa !== null) {
+              jogosRealizados++;
+              golsTotais += j.golsCasa + j.golsFora;
+            }
           }
         }),
       );
@@ -762,8 +832,7 @@ function render() {
         <div class="pts">${t.pts} pts • ${t.j} jogos</div>
         <div style="font-size:13px;color:#9ca3af;margin-top:4px">V:${t.v} E:${t.e} D:${t.d}</div>
         <button class="del" style="margin-top:12px" onclick="event.stopPropagation(); removeTeam('${t.id}')">Excluir</button>
-      </div>
-    `,
+      </div>`,
       )
       .join("");
   }
@@ -803,8 +872,7 @@ function render() {
             <p>Artilheiro: ${h.artilheiro ? h.artilheiro.nome + " (" + h.artilheiro.gols + ")" : "-"}</p>
             <p>Ataque: ${h.melhorAtaque.nome} | Defesa: ${h.melhorDefesa.nome}</p>
             <small>${h.dataFim}</small>
-          </div>
-        `,
+          </div>`,
           )
           .join("")
       : "<p style='color:#999'>Nenhuma temporada encerrada</p>";
@@ -831,9 +899,7 @@ function renderTabelasAba() {
               <span class="fase-badge">${fase.nome} — ${nomeGrupo}</span>
               <table>
                 <thead><tr><th>#</th><th>Time</th><th>Pts</th><th>J</th><th>V</th><th>E</th><th>D</th><th>GP</th><th>GC</th><th>SG</th></tr></thead>
-                <tbody>
-                  ${tabG.map((t, i) => `<tr><td>${i + 1}</td><td>${t.nome}</td><td>${t.pts}</td><td>${t.j}</td><td>${t.v}</td><td>${t.e}</td><td>${t.d}</td><td>${t.gp}</td><td>${t.gc}</td><td>${t.sg}</td></tr>`).join("")}
-                </tbody>
+                <tbody>${tabG.map((t, i) => `<tr><td>${i + 1}</td><td>${t.nome}</td><td>${t.pts}</td><td>${t.j}</td><td>${t.v}</td><td>${t.e}</td><td>${t.d}</td><td>${t.gp}</td><td>${t.gc}</td><td>${t.sg}</td></tr>`).join("")}</tbody>
               </table>
             </div>`;
         }
@@ -846,16 +912,14 @@ function renderTabelasAba() {
             <span class="fase-badge">${fase.nome}</span>
             <table>
               <thead><tr><th>#</th><th>Time</th><th>Pts</th><th>J</th><th>V</th><th>E</th><th>D</th><th>GP</th><th>GC</th><th>SG</th><th>Forma</th></tr></thead>
-              <tbody>
-                ${tabU
-                  .map((t, i) => {
-                    let forma = obterForma(t.id)
-                      .map((r) => `<span class="bol ${r}">${r}</span>`)
-                      .join("");
-                    return `<tr><td>${i + 1}</td><td>${t.nome}</td><td>${t.pts}</td><td>${t.j}</td><td>${t.v}</td><td>${t.e}</td><td>${t.d}</td><td>${t.gp}</td><td>${t.gc}</td><td>${t.sg}</td><td><div class="forma">${forma}</div></td></tr>`;
-                  })
-                  .join("")}
-              </tbody>
+              <tbody>${tabU
+                .map((t, i) => {
+                  let forma = obterForma(t.id)
+                    .map((r) => `<span class="bol ${r}">${r}</span>`)
+                    .join("");
+                  return `<tr><td>${i + 1}</td><td>${t.nome}</td><td>${t.pts}</td><td>${t.j}</td><td>${t.v}</td><td>${t.e}</td><td>${t.d}</td><td>${t.gp}</td><td>${t.gc}</td><td>${t.sg}</td><td><div class="forma">${forma}</div></td></tr>`;
+                })
+                .join("")}</tbody>
             </table>
           </div>`;
       }
@@ -892,7 +956,7 @@ function renderRodadasAba() {
                 <span>${c.nome}</span>
                 <span class="placar">${j.golsCasa === null ? "— x —" : j.golsCasa + " x " + j.golsFora}</span>
                 <span>${f.nome}</span>
-                <button onclick="definirJogoPontosCorridos(${fIdx}, ${rIdx}, ${jIdx})">${j.golsCasa === null ? "Definir" : "Editar"}</button>
+                <button onclick="definirJogoPontosCorridos(${fIdx}, ${rIdx}, ${jIdx})">Editar</button>
               </div>`;
               })
               .join("")}
@@ -903,26 +967,61 @@ function renderRodadasAba() {
         html += `<button class="gold" style="width:100%;padding:14px;margin-top:10px" onclick="promoverGruposParaMataMata()">🚀 Promover Classificados dos Grupos para o Mata-Mata</button>`;
       }
     } else if (fase.tipo === "MATA_MATA") {
-      fase.etapas.forEach((etapa, eIdx) => {
-        html += `
-          <div class="rodada" style="border-left: 4px solid var(--primary)">
-            <h3 style="color:var(--primary)">🔥 ${etapa.nome}</h3>
-            ${etapa.jogos
-              .map((j, jIdx) => {
-                let c = data.times.find((x) => String(x.id) === String(j.casa));
-                let f = data.times.find((x) => String(x.id) === String(j.fora));
-                let nomeC = c ? c.nome : j.casaPlaceholder || "A definir";
-                let nomeF = f ? f.nome : j.foraPlaceholder || "A definir";
+      recalcularMataMata(fase);
 
-                return `<div class="jogo-info">
-                <span style="${j.vencedor === j.casa ? "color:var(--primary);font-weight:bold" : ""}">${nomeC}</span>
-                <span class="placar">${j.golsCasa === null ? "— x —" : j.golsCasa + " x " + j.golsFora}</span>
-                <span style="${j.vencedor === j.fora ? "color:var(--primary);font-weight:bold" : ""}">${nomeF}</span>
-                <button onclick="definirJogoMataMata(${fIdx}, ${eIdx}, ${jIdx})">${j.golsCasa === null ? "Definir" : "Editar"}</button>
-              </div>`;
-              })
-              .join("")}
-          </div>`;
+      fase.etapas.forEach((etapa, eIdx) => {
+        let jogosExibiveis = etapa.jogos.filter((j) => !j.isBye);
+
+        if (jogosExibiveis.length > 0) {
+          html += `
+            <div class="rodada" style="border-left: 4px solid var(--primary)">
+              <h3 style="color:var(--primary)">🔥 ${etapa.nome}</h3>`;
+
+          jogosExibiveis.forEach((j) => {
+            let jOriginalIdx = etapa.jogos.findIndex((x) => x.id === j.id);
+            let c = data.times.find((x) => String(x.id) === String(j.casa));
+            let f = data.times.find((x) => String(x.id) === String(j.fora));
+
+            let nomeC = c ? c.nome : j.casaPlaceholder || "A definir";
+            let nomeF = f ? f.nome : j.foraPlaceholder || "A definir";
+            let prontoParaJogar = j.casa !== null && j.fora !== null;
+
+            html += `<div class="jogo-info">
+              <span style="${j.vencedor && String(j.vencedor) === String(j.casa) ? "color:var(--primary);font-weight:bold" : ""}">${nomeC}</span>
+              <span class="placar">${j.golsCasa === null ? "— x —" : j.golsCasa + " x " + j.golsFora}</span>
+              <span style="${j.vencedor && String(j.vencedor) === String(j.fora) ? "color:var(--primary);font-weight:bold" : ""}">${nomeF}</span>
+              ${
+                prontoParaJogar
+                  ? `<button onclick="definirJogoMataMata(${fIdx}, ${eIdx}, ${jOriginalIdx})">${j.golsCasa === null ? "Definir" : "Editar"}</button>`
+                  : `<button style="opacity:0.4;cursor:not-allowed" disabled>Aguardando</button>`
+              }
+            </div>`;
+          });
+
+          html += `</div>`;
+
+          // Se essa etapa é a Grande Final e já tem vencedor definido, mostra o troféu do campeão
+          if (etapa.nome === "Grande Final") {
+            let jogoFinal = etapa.jogos[0];
+            if (
+              jogoFinal &&
+              jogoFinal.vencedor &&
+              jogoFinal.vencedor !== "BYE"
+            ) {
+              let timeCampeao = data.times.find(
+                (x) => String(x.id) === String(jogoFinal.vencedor),
+              );
+              if (timeCampeao) {
+                html += `
+                  <div style="text-align:center; margin-top:20px; padding:24px; background:linear-gradient(135deg,#facc15,#f59e0b); border-radius:12px; box-shadow:0 4px 20px rgba(250,204,21,0.4)">
+                    <div style="font-size:48px">🏆</div>
+                    <div style="font-size:14px; color:#78350f; font-weight:bold; letter-spacing:1px; margin-top:4px">CAMPEÃO</div>
+                    <div style="font-size:28px; color:#1a1a1a; font-weight:900; margin-top:4px">${timeCampeao.nome}</div>
+                  </div>`;
+              }
+            }
+          }
+        }
       });
     }
 
@@ -932,4 +1031,5 @@ function renderRodadasAba() {
   container.innerHTML = html;
 }
 
+// Inicialização da interface
 render();

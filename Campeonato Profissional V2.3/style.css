@@ -338,7 +338,76 @@ tr:hover {
   align-items: center;
   flex-wrap: wrap;
 }
+/* ================================
+   CHAVEAMENTO MATA-MATA
+================================ */
 
+.chaveamento {
+  display: flex;
+  gap: 35px;
+  overflow-x: auto;
+  padding: 25px 10px;
+}
+
+.chave-coluna {
+  min-width: 190px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  gap: 35px;
+}
+
+.chave-titulo {
+  text-align: center;
+  color: var(--primary);
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.chave-jogo {
+  position: relative;
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: visible;
+  box-shadow: var(--shadow);
+}
+
+.chave-time {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  min-height: 38px;
+}
+
+.chave-time:last-child {
+  border-bottom: none;
+}
+
+.chave-time.vencedor {
+  color: var(--primary);
+  font-weight: bold;
+}
+
+.chave-placar {
+  float: right;
+  font-weight: bold;
+}
+
+.chave-final {
+  border-color: var(--primary);
+  box-shadow: 0 0 18px var(--primary-glow);
+}
+
+.chave-campeao {
+  text-align: center;
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid var(--primary);
+  border-radius: 10px;
+  color: var(--primary);
+  font-weight: bold;
+}
 @media (max-width: 700px) {
   body {
     padding: 14px;
@@ -358,4 +427,151 @@ tr:hover {
     align-items: stretch;
   }
 }
+/* =========================================
+   CHAVE DO MATA-MATA
+   ========================================= */
 
+.chave-mata-mata {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px;
+  margin-top: 20px;
+  overflow-x: auto;
+  box-shadow: var(--shadow);
+}
+
+.chave-titulo {
+  text-align: center;
+  color: var(--primary);
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 24px;
+}
+
+.chave {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 40px;
+  min-width: 720px;
+  padding: 10px;
+}
+
+.chave-coluna {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  min-width: 190px;
+}
+
+.chave-coluna h3 {
+  text-align: center;
+  color: var(--primary);
+  font-size: 15px;
+  margin-bottom: 14px;
+}
+
+.chave-jogo {
+  position: relative;
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: visible;
+  margin: 18px 0;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.chave-time {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  min-height: 42px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+
+.chave-time:last-child {
+  border-bottom: none;
+}
+
+.chave-time.vencedor {
+  color: var(--primary);
+  font-weight: bold;
+}
+
+.chave-placar {
+  font-weight: bold;
+  font-size: 16px;
+  min-width: 24px;
+  text-align: center;
+}
+
+.chave-jogo button {
+  width: calc(100% - 16px);
+  margin: 8px;
+  font-size: 13px;
+  padding: 8px;
+}
+
+/* Linhas que conectam os confrontos */
+.chave-coluna:not(:last-child) .chave-jogo::after {
+  content: "";
+  position: absolute;
+  right: -40px;
+  top: 50%;
+  width: 40px;
+  height: 2px;
+  background: var(--border);
+}
+
+.chave-final {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chave-final .chave-jogo {
+  border: 1px solid var(--primary);
+  box-shadow: 0 0 18px var(--primary-glow);
+}
+
+.chave-final .chave-time {
+  font-size: 15px;
+}
+
+.chave-campeao {
+  margin-top: 20px;
+  text-align: center;
+  padding: 16px;
+  border-radius: 10px;
+  background: var(--primary-glow);
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* Celular */
+@media (max-width: 700px) {
+  .chave-mata-mata {
+    padding: 14px;
+  }
+
+  .chave {
+    min-width: 650px;
+    gap: 28px;
+  }
+
+  .chave-coluna {
+    min-width: 175px;
+  }
+
+  .chave-time {
+    font-size: 13px;
+    padding: 9px;
+  }
+}
