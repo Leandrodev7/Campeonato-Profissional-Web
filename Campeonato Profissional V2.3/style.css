@@ -232,7 +232,18 @@ button.link {
   color: var(--muted);
   font-size: 14px;
 }
-
+tr.pos-1 {
+  background: rgba(250, 204, 21, 0.08);
+  border-left: 3px solid #facc15;
+}
+tr.pos-2 {
+  background: rgba(148, 163, 184, 0.08);
+  border-left: 3px solid #94a3b8;
+}
+tr.pos-3 {
+  background: rgba(217, 119, 6, 0.08);
+  border-left: 3px solid #d97706;
+}
 table {
   width: 100%;
   border-collapse: collapse;

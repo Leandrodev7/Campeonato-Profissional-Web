@@ -907,9 +907,23 @@ function renderTabelasAba() {
         let tabU = [...data.times].sort(
           (a, b) => b.pts - a.pts || b.sg - a.sg || b.gp - a.gp,
         );
+
+        let faseConcluida =
+          fase.rodadas.length > 0 &&
+          fase.rodadas.every((r) =>
+            r.jogos.every(
+              (j) =>
+                j.golsCasa !== null &&
+                j.golsCasa !== undefined &&
+                j.golsFora !== null &&
+                j.golsFora !== undefined,
+            ),
+          );
+
         html += `
           <div class="card">
             <span class="fase-badge">${fase.nome}</span>
+            ${faseConcluida && tabU[0] ? `<div class="chave-campeao">🏆 CAMPEÃO: ${tabU[0].nome}</div>` : ""}
             <table>
               <thead><tr><th>#</th><th>Time</th><th>Pts</th><th>J</th><th>V</th><th>E</th><th>D</th><th>GP</th><th>GC</th><th>SG</th><th>Forma</th></tr></thead>
               <tbody>${tabU
@@ -917,7 +931,15 @@ function renderTabelasAba() {
                   let forma = obterForma(t.id)
                     .map((r) => `<span class="bol ${r}">${r}</span>`)
                     .join("");
-                  return `<tr><td>${i + 1}</td><td>${t.nome}</td><td>${t.pts}</td><td>${t.j}</td><td>${t.v}</td><td>${t.e}</td><td>${t.d}</td><td>${t.gp}</td><td>${t.gc}</td><td>${t.sg}</td><td><div class="forma">${forma}</div></td></tr>`;
+                  let posClass =
+                    i === 0
+                      ? "pos-1"
+                      : i === 1
+                        ? "pos-2"
+                        : i === 2
+                          ? "pos-3"
+                          : "";
+                  return `<tr class="${posClass}"><td>${i + 1}</td><td>${t.nome}</td><td>${t.pts}</td><td>${t.j}</td><td>${t.v}</td><td>${t.e}</td><td>${t.d}</td><td>${t.gp}</td><td>${t.gc}</td><td>${t.sg}</td><td><div class="forma">${forma}</div></td></tr>`;
                 })
                 .join("")}</tbody>
             </table>
